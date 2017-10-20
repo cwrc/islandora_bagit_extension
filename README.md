@@ -36,6 +36,21 @@ This module is intended for users who have a fairly high level of permissions on
 
 See [Bagit Islandora](https://github.com/Islandora/islandora_bagit)
 
+### Usage
+
+* Audit trail for all objects current user has view access (note some object may require admin access to view)
+  * `services/bagit_extension/audit`
+    * e.g., `services/bagit_extension/audit`
+ 
+* Audit trail for all objects modified/created since a specified date/time; current user has view access (note some object may require admin access to view)
+  * `services/bagit_extension/audit_by_date/YYYY-MM-DDTHH:MM:SS.xxxZ`
+    * e.g., `services/bagit_extension/audit_by_date/2017-01-01T15:29:21.374Z`
+
+* Download the Bag for the specified Fedora PID
+  * `islandora/object/%islandora_object/manage/bagit_extension`
+
+* Drush script to create a bag for a given object
+
 
 ## License
 

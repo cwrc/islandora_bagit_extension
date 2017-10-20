@@ -36,12 +36,19 @@ function islandora_bagit_extension_menu() {
     'access arguments' => array(2),
     'type' => MENU_CALLBACK,
   );
+  $items['services/bagit_extension/audit_by_date'] = array(
+    'title' => 'Create BagIT Audit by date',
+    'page callback' => 'islandora_bagit_extension_audit_by_date',
+    'page arguments' => array(3),
+    'access callback' => 'islandora_bagit_extension_access_check',
+    'access arguments' => array(3),
+    'type' => MENU_CALLBACK,
+  );
   $items['services/bagit_extension/audit'] = array(
     'title' => 'Create BagIT Audit',
     'page callback' => 'islandora_bagit_extension_audit',
-//    'page arguments' => array(2),
     'access callback' => 'islandora_bagit_extension_access_check',
-//    'access arguments' => array(2),
+    'access arguments' => array(2),
     'type' => MENU_CALLBACK,
   );
 
@@ -85,6 +92,36 @@ function islandora_bagit_extension_return_bag($object_to_bag_pid) {
   readfile($filePath);
 }
 
+/**
+ * Report a list of object and their modification/create timestamp for audit
+ * after a given date
+ *
+ * */
+function islandora_bagit_extension_audit_by_date($start_date = "2017-09-17T15:29:21.374Z") 
+{
+  $ret = null;
+  $docArray = array();
+
+  print_r($start_date);
+
+  $query = <<<EOQ
+    PREFIX fedora-model: <info:fedora/fedora-system:def/model#>
+    PREFIX fedora-view: <info:fedora/fedora-system:def/view#>
+    SELECT ?object ?modified
+    FROM <#ri>
+    WHERE {
+      ?object fedora-view:lastModifiedDate ?modified ;
+      fedora-model:hasModel <info:fedora/fedora-system:FedoraObject-3.0>;
+      FILTER (
+        ?modified > '$start_date'^^<xml-schema:dateTime>
+      )
+    }
+EOQ;
+
+  $ret = islandora_bagit_extention_audit_build_page($query);
+  drupal_json_output($ret); 
+
+}
 
 
 /**
@@ -106,10 +143,21 @@ function islandora_bagit_extension_audit() {
     }
 EOQ;
 
+  $ret = islandora_bagit_extention_audit_build_page($query);
+  drupal_json_output($ret); 
+
+}
+
+
+/**
+ * given a SPARQL query string, build a page to output JSON
+ *
+ * */
+function islandora_bagit_extention_audit_build_page($sparql_query) {
 
   try {
     $connection = islandora_get_tuque_connection();
-    $results = $connection->repository->ri->sparqlQuery($query);
+    $results = $connection->repository->ri->sparqlQuery($sparql_query);
 
     foreach ($results as $result) {
       $doc_array[] =  array(
@@ -126,8 +174,8 @@ EOQ;
   $ret['objects'] = $doc_array;
 
   drupal_json_output($ret); 
-}
 
+}
 
 /**
  * Creates the object-level Bag.
