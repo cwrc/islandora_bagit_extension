@@ -30,11 +30,11 @@ function islandora_bagit_extension_menu() {
   $items = array();
   $items['islandora/object/%islandora_object/manage/bagit_extension'] = array(
     'title' => 'Create Bag(s)',
-    'page callback' => 'islandora_bagit_extension_create_bag',
+    'page callback' => 'islandora_bagit_extension_return_bag',
     'page arguments' => array(2),
     'access callback' => 'islandora_bagit_extension_access_check',
     'access arguments' => array(2),
-    'type' => MENU_LOCAL_TASK,
+    'type' => MENU_CALLBACK,
   );
   $items['services/bagit_extension/audit'] = array(
     'title' => 'Create BagIT Audit',
@@ -48,6 +48,44 @@ function islandora_bagit_extension_menu() {
 
   return $items;
 }
+
+
+
+
+/**
+ * return a BagIT zip archive 
+ *
+ * */
+function islandora_bagit_extension_return_bag($object_to_bag_pid) {
+
+  $path = "/tmp/";
+  $filePath = null;
+
+  try {
+    $islandora_object = islandora_object_load($object_to_bag_pid);
+    $filePath = islandora_bagit_extension_create_bag($islandora_object, $path);
+  }
+  catch (Exception $e) {
+    drush_print("Sorry, Islandora cannot create the Bag: " . $e->getMessage());
+  }
+
+  // Clean up the temp directory where we downloaded the datastreams.
+  if (file_exists($filePath)) {
+    //rrmdir($bag_path);
+  }
+
+  // Send Headers
+  header('Content-Type: application/zip');
+  header('Content-Disposition: attachment; filename="' . $filePath . '"');
+  header('Content-Transfer-Encoding: binary');
+  header('Accept-Ranges: bytes');
+  $fileSize = filesize($filePath);
+  header('Content-Length: ' . $fileSize);
+
+  readfile($filePath);
+}
+
+
 
 /**
  * Report a list of object and their modification/create timestamp for audit
@@ -224,7 +262,7 @@ function islandora_bagit_extension_create_bag($islandora_object, $bag_output_dir
   // Allow other modules to fire the post-Bag creation hook.
   $post_create_data = module_invoke_all('islandora_bagit_post_create', $pid, $serialized_bag_path);
 
-  return array();
+  return $serialized_bag_path;
 
 }
 
