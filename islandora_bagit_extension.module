@@ -67,10 +67,12 @@ function islandora_bagit_extension_return_bag($object_to_bag_pid) {
 
   $path = "/tmp/";
   $filePath = null;
+  $checkSum = null;
 
   try {
     $islandora_object = islandora_object_load($object_to_bag_pid);
     $filePath = islandora_bagit_extension_create_bag($islandora_object, $path);
+    $checkSum = md5_file($filePath);
   }
   catch (Exception $e) {
     drush_print("Sorry, Islandora cannot create the Bag: " . $e->getMessage());
@@ -83,8 +85,12 @@ function islandora_bagit_extension_return_bag($object_to_bag_pid) {
 
   // Send Headers
   header('Content-Type: application/zip');
-  header('Content-Disposition: attachment; filename="' . $filePath . '"');
+  header('Content-Disposition: attachment; filename="' . drupal_basename($filePath) . '"');
   header('Content-Transfer-Encoding: binary');
+  header('ETag: "' . $checkSum . '"');
+  header('CWRC-MODIFIED_DATE: "' . $islandora_object->lastModifiedDate . '"');
+  header('CWRC-CHECKSUM: "' . $checkSum . '"');
+  header('CWRC-PID: "' . $object_to_bag_pid . '"');
   header('Accept-Ranges: bytes');
   $fileSize = filesize($filePath);
   header('Content-Length: ' . $fileSize);
