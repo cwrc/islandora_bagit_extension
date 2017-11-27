@@ -27,6 +27,7 @@ To install the Islandora BagIt module:
 
 See [Bagit Islandora](https://github.com/Islandora/islandora_bagit)
 
+May need to boost: `memory_limit` in the PHP ini or in the Drupal `settings.php` file. Error appears in httpd log as `PHP Fatal error:  Allowed memory size of x bytes exhausted... `. Errors in the Drupal `Recent log messages` might be misleading around `filesize stat` and `md5_file`.
 
 ### Permissions and security
 

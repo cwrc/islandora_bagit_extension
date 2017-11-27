@@ -65,25 +65,22 @@ function islandora_bagit_extension_menu() {
  * */
 function islandora_bagit_extension_return_bag($object_to_bag_pid) {
 
-  $path = "/tmp/";
+  $path = "/tmp";
   $filePath = null;
   $checkSum = null;
+  $filesize = null;
 
   try {
     $islandora_object = islandora_object_load($object_to_bag_pid);
     $filePath = islandora_bagit_extension_create_bag($islandora_object, $path);
     $checkSum = md5_file($filePath);
+    $fileSize = filesize($filePath);
   }
   catch (Exception $e) {
     drush_print("Sorry, Islandora cannot create the Bag: " . $e->getMessage());
     watchdog('bagit', 'BagIt Bag not created for !object: !mess.',
       array('!object' => $islandora_object->id, '!mess' => $e->getMessage()));
     http_response_code(404);
-  }
-
-  // Clean up the temp directory where we downloaded the datastreams.
-  if (file_exists($filePath)) {
-    //rrmdir($bag_path);
   }
 
   // Send Headers
@@ -95,10 +92,15 @@ function islandora_bagit_extension_return_bag($object_to_bag_pid) {
   header('CWRC-CHECKSUM: "' . $checkSum . '"');
   header('CWRC-PID: "' . $object_to_bag_pid . '"');
   header('Accept-Ranges: bytes');
-  $fileSize = filesize($filePath);
   header('Content-Length: ' . $fileSize);
 
   readfile($filePath);
+
+  // Clean up the temp directory where we downloaded the datastreams.
+  if (file_exists($filePath)) {
+    unlink($filePath);
+  }
+
 }
 
 /**
