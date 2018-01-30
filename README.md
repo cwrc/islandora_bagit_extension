@@ -27,11 +27,15 @@ To install the Islandora BagIt module:
 
 See [Bagit Islandora](https://github.com/Islandora/islandora_bagit)
 
-May need to boost: `memory_limit` in the PHP ini or in the Drupal `settings.php` file. Error appears in httpd log as `PHP Fatal error:  Allowed memory size of x bytes exhausted... `. Errors in the Drupal `Recent log messages` might be misleading around `filesize stat` and `md5_file`.
+May need to boost: `memory_limit` in the PHP ini or in the Drupal `settings.php` file if Fcrepo stores large objects such as videos. Errors appear in httpd log as `PHP Fatal error:  Allowed memory size of x bytes exhausted... `. Errors in the Drupal `Recent log messages` might be misleading around `filesize stat` and `md5_file`.
+
+May need to boost: `max_execution_time` as well
+
 
 ### Permissions and security
 
-This module is intended for users who have a fairly high level of permissions on a Drupal site. Because the goal is to package up all or some of the datastreams in an Islandora object, users who can create and download Bags should have access to those datastreams. However, the module does check the current users' access to a datastream before adding it to the Bag.
+This module is intended for users who have a fairly high level of permissions on a Drupal site. Because the goal is to package up all or some of the datastreams in an Islandora object, users who can create and download Bags should have access to those datastreams. The module check the current users' access rights to a datastream/object thus only datastreams/objects viewable by the current user are included in the Bag.
+
 
 ## Documentation
 
