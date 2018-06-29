@@ -54,8 +54,8 @@ See [Bagit Islandora](https://github.com/Islandora/islandora_bagit)
 * Download the Bag for the specified Fedora PID
   * `islandora/object/%islandora_object/manage/bagit_extension`
   * includes custom header elements:
-    * CWRC-MODIFIED_DATE: modification timestamp of the Fedora Object - date/time with timezone
-      * e.g., CWRC-MODIFIED_DATE: "2016-12-21T20:14:23.888Z"
+    * CWRC-MODIFIED-DATE: modification timestamp of the Fedora Object - date/time with timezone
+      * e.g., CWRC-MODIFIED-DATE: "2016-12-21T20:14:23.888Z"
     * CWRC-CHECKSUM: checksum of the zip file included in the above response (also in the ETag) 
       * e.g., CWRC-CHECKSUM: "2e30758521f2ad9147d14df8463dd2cc"
     * CWRC-PID: persistent identifier from Fedora (UUID)

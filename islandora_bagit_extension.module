@@ -88,7 +88,7 @@ function islandora_bagit_extension_return_bag($object_to_bag_pid) {
   header('Content-Disposition: attachment; filename="' . drupal_basename($filePath) . '"');
   header('Content-Transfer-Encoding: binary');
   header('ETag: "' . $checkSum . '"');
-  header('CWRC-MODIFIED_DATE: "' . $islandora_object->lastModifiedDate . '"');
+  header('CWRC-MODIFIED-DATE: "' . $islandora_object->lastModifiedDate . '"');
   header('CWRC-CHECKSUM: "' . $checkSum . '"');
   header('CWRC-PID: "' . $object_to_bag_pid . '"');
   header('Accept-Ranges: bytes');
