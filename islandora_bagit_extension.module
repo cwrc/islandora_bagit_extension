@@ -77,24 +77,29 @@ function islandora_bagit_extension_return_bag($object_to_bag_pid) {
     $fileSize = filesize($filePath);
   }
   catch (Exception $e) {
-    drush_print("Sorry, Islandora cannot create the Bag: " . $e->getMessage());
     watchdog('bagit', 'BagIt Bag not created for !object: !mess.',
-      array('!object' => $islandora_object->id, '!mess' => $e->getMessage()));
+      array('!object' => $object_to_bag_pid, '!mess' => $e->getMessage()));
     http_response_code(404);
   }
 
-  // Send Headers
-  header('Content-Type: application/zip');
-  header('Content-Disposition: attachment; filename="' . drupal_basename($filePath) . '"');
-  header('Content-Transfer-Encoding: binary');
-  header('ETag: "' . $checkSum . '"');
-  header('CWRC-MODIFIED-DATE: "' . $islandora_object->lastModifiedDate . '"');
-  header('CWRC-CHECKSUM: "' . $checkSum . '"');
-  header('CWRC-PID: "' . $object_to_bag_pid . '"');
-  header('Accept-Ranges: bytes');
-  header('Content-Length: ' . $fileSize);
+  if ( empty($checkSum) || empty($fileSize) ) {
+    watchdog('bagit', 'BagIt Bag not created for !object: server error.',
+      array('!object' => $object_to_bag_pid));
+    http_response_code(500);
+  } else {
+    // Send Headers
+    header('Content-Type: application/zip');
+    header('Content-Disposition: attachment; filename="' . drupal_basename($filePath) . '"');
+    header('Content-Transfer-Encoding: binary');
+    header('ETag: "' . $checkSum . '"');
+    header('CWRC-MODIFIED-DATE: "' . $islandora_object->lastModifiedDate . '"');
+    header('CWRC-CHECKSUM: "' . $checkSum . '"');
+    header('CWRC-PID: "' . $object_to_bag_pid . '"');
+    header('Accept-Ranges: bytes');
+    header('Content-Length: ' . $fileSize);
 
-  readfile($filePath);
+    readfile($filePath);
+  }
 
   // Clean up the temp directory where we downloaded the datastreams.
   if (file_exists($filePath)) {
