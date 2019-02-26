@@ -126,7 +126,8 @@ function islandora_bagit_extension_return_bag($object_to_bag_pid) {
         array('!object' => $object_to_bag_pid, '!mess' => $e->getMessage()));
       http_response_code(500);
     }
-  
+  }
+
   // Clean up the temp directory where we downloaded the datastreams.
   if (file_exists($filePath)) {
     unlink($filePath);
