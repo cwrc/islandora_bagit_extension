@@ -91,6 +91,7 @@ function islandora_bagit_extension_return_bag($object_to_bag_pid) {
   } else {
 
     // disable cache to save memery for 5GB files
+    // ToDo: investigate usage of `file_transfer`
     drupal_page_is_cacheable(FALSE);
     if (ob_get_level()) {
       ob_end_clean();
@@ -108,16 +109,24 @@ function islandora_bagit_extension_return_bag($object_to_bag_pid) {
     header('Content-Length: ' . $fileSize);
 
     // Transfer file in 1024 byte chunks to save memory usage.
-    if ($fd = fopen($filePath, 'rb')) {
-      while (!feof($fd)) {
-        print fread($fd, 1024);
+    // ToDo: investigate usage of `file_transfer`
+    try {
+      if ($fd = fopen($filePath, 'rb')) {
+        while (!feof($fd)) {
+          print fread($fd, 1024);
+        }
+        fclose($fd);
       }
-      fclose($fd);
+      else {
+        http_response_code(404);
+      }
+    } 
+    catch (Exception $e) {
+      watchdog('bagit', 'BagIt Bag not created for !object: !mess.',
+        array('!object' => $object_to_bag_pid, '!mess' => $e->getMessage()));
+      http_response_code(500);
     }
-    else {
-      http_response_code(404);
-    }
-
+  
   // Clean up the temp directory where we downloaded the datastreams.
   if (file_exists($filePath)) {
     unlink($filePath);
