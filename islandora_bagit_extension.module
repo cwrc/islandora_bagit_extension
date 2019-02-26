@@ -133,6 +133,7 @@ function islandora_bagit_extension_return_bag($object_to_bag_pid) {
     unlink($filePath);
   }
 
+  drupal_exit();
 }
 
 /**
